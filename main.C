@@ -38,5 +38,24 @@ int main()
   data.push_back({"      Exodus::outputStep", 0.005395, 0, 0.005395});
   data.push_back({"      Console::outputStep", 5.8e-05, 0, 5.8e-05});
 
-  std::cout << "|" << std::setw(5) << std::left << "Dog" << "|" << std::endl;
+  // First - find out the width of the Section column
+  unsigned int section_name_size = 0;
+  for (auto & row : data)
+    if (row.section_name.size() > section_name_size)
+      section_name_size = row.section_name.size();
+
+  unsigned int time_size = 10;
+
+  std::cout << "|" << std::setw(section_name_size) << std::left << "Section" << "|" << std::setw(time_size) << std::right << "Self" << "|" << std::setw(time_size) << std::right << "Children" << "|" << std::setw(time_size) << std::right << "Total" << "|\n";
+
+  unsigned int total_chars = section_name_size + 5 + (3 * time_size);
+
+  std::cout << std::string(total_chars, '-') << "\n";
+
+
+  // Print out each row
+//  for (auto & row : data)
+//  std::cout << "|" << std::setw(section_name_size) << st
+
+//  std::cout << "|" << std::setw(5) << std::left << "Dog" << "|" << std::endl;
 }
