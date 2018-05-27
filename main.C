@@ -46,15 +46,24 @@ int main()
 
   unsigned int time_size = 10;
 
-  std::cout << "|" << std::setw(section_name_size) << std::left << "Section" << "|" << std::setw(time_size) << std::right << "Self" << "|" << std::setw(time_size) << std::right << "Children" << "|" << std::setw(time_size) << std::right << "Total" << "|\n";
-
   unsigned int total_chars = section_name_size + 5 + (3 * time_size);
 
+  // Line above the header
   std::cout << std::string(total_chars, '-') << "\n";
 
+  // Header
+  std::cout << "|" << std::setw(section_name_size) << std::left << "Section" << "|" << std::setw(time_size) << std::right << "Self" << "|" << std::setw(time_size) << std::right << "Children" << "|" << std::setw(time_size) << std::right << "Total" << "|\n";
+
+  // Line under the header
+  std::cout << std::string(total_chars, '-') << "\n";
 
   // Print out each row
-//  for (auto & row : data)
+  for (auto & row : data)
+    std::cout << "|" << std::setw(section_name_size) << std::left << row.section_name << "|" << std::setw(time_size) << std::right << row.self << "|" << std::setw(time_size) << std::right << row.children << "|" << std::setw(time_size) << std::right << row.total << "|\n";
+
+  // Bottom line
+  std::cout << std::string(total_chars, '-') << "\n";
+
 //  std::cout << "|" << std::setw(section_name_size) << st
 
 //  std::cout << "|" << std::setw(5) << std::left << "Dog" << "|" << std::endl;
