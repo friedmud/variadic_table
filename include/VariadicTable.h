@@ -105,7 +105,7 @@ protected:
 
   // Attempts to figure out the correct justification for the data
   // If it's a floating point value
-  template<typename Floating, typename = typename std::enable_if<std::is_floating_point<typename std::remove_reference<Floating>::type>::value>::type>
+  template<typename T, typename = typename std::enable_if<std::is_arithmetic<typename std::remove_reference<T>::type>::value>::type>
   static right_type justify(int /*firstchoice*/)
   {
     return std::right;
