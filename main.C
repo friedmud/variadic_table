@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <ios>
 #include <vector>
+#include <tuple>
 
 struct Data
 {
@@ -10,6 +11,72 @@ struct Data
   double children;
   double total;
 };
+
+/**
+ * Class that has a header and a string first column
+ */
+/*
+class PerfGraphTable
+{
+public:
+  PerfGraphTable(unsigned int num_data_columns, unsigned int data_column_width)
+      : _data_columns(num_data_columns), _data_column_width(data_column_width)
+  {}
+
+protected:
+  std::vector<std::string> _section_name_column;
+
+  std::vector<std::vector<double>> _data_columns;
+
+  unsigned int _data_column_width;
+};
+*/
+
+template<class... Ts>
+class PerfGraphTable
+{
+public:
+  void addRow(std::tuple<Ts...> data)
+  {
+    _data.push_back(data);
+  }
+
+  void print()
+  {
+    for (auto & row : _data)
+    {
+      print_each(row);
+      std::cout << std::endl;
+    }
+  }
+
+protected:
+
+// From https://stackoverflow.com/a/26908596
+template<typename TupleType>
+void print_each(TupleType&&, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
+
+template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
+void print_each(TupleType&& t, std::integral_constant<size_t, I>)
+{
+  std::cout << std::get<I>(t) << "|";
+  print_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
+}
+
+template<typename TupleType>
+void print_each(TupleType&& t)
+{
+  print_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
+}
+
+
+
+  template<typename T>
+  void print_helper( unsigned int column, const T & x ) { std::cout << x << "|"; }
+
+  std::vector<std::tuple<Ts...>> _data;
+};
+
 
 int main()
 {
@@ -67,4 +134,10 @@ int main()
 //  std::cout << "|" << std::setw(section_name_size) << st
 
 //  std::cout << "|" << std::setw(5) << std::left << "Dog" << "|" << std::endl;
+
+  PerfGraphTable<std::string, double, double> pgt;
+
+  pgt.addRow({"stuff", 1.2, 3.5});
+
+  pgt.print();
 }
