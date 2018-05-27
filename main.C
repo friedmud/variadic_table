@@ -3,6 +3,7 @@
 #include <ios>
 #include <vector>
 #include <tuple>
+#include <type_traits>
 
 struct Data
 {
@@ -83,9 +84,30 @@ public:
       print_each(row);
       std::cout << "\n";
     }
+
+    // Print out the line below the header
+    std::cout << std::string(total_width, '-') << "\n";
   }
 
 protected:
+  typedef decltype(&std::right) right_type;
+  typedef decltype(&std::left) left_type;
+
+  // Attempts to figure out the correct justification for the data
+  // If it's a floating point value
+  template<typename Floating, typename = typename std::enable_if<std::is_floating_point<typename std::remove_reference<Floating>::type>::value>::type>
+  static right_type justify(int /*firstchoice*/)
+  {
+    return std::right;
+  }
+
+  // Otherwise
+  template<typename T>
+  static left_type justify(long /*secondchoice*/)
+  {
+    return std::left;
+  }
+
   // From https://stackoverflow.com/a/26908596
   //
   // BTW: This would all be a lot easier with generic lambdas
@@ -100,7 +122,9 @@ protected:
   template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
   void print_each(TupleType&& t, std::integral_constant<size_t, I>)
   {
-    std::cout << std::setw(_column_sizes[I]) << std::get<I>(t) << "|";
+    auto & val = std::get<I>(t);
+
+    std::cout << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val << "|";
 
     // Recursive call to print the next item
     print_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
