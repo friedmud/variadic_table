@@ -56,10 +56,32 @@ public:
   {
     size_columns();
 
+    // Start computing the total width
+    // First - we will have _num_columns + 1 "|" characters
+    unsigned int total_width = _num_columns + 1;
+
+    // Now add in the size of each colum
+    for (auto & col_size : _column_sizes)
+      total_width += col_size;
+
+    // Print out the top line
+    std::cout << std::string(total_width, '-') << "\n";
+
+    // Print out the headers
+    std::cout << "|";
+    for (unsigned int i = 0; i < _num_columns; i++)
+      std::cout << std::setw(_column_sizes[i]) << _headers[i] << "|";
+    std::cout << "\n";
+
+    // Print out the line below the header
+    std::cout << std::string(total_width, '-') << "\n";
+
+    // Now print the rows of the table
     for (auto & row : _data)
     {
+      std::cout << "|";
       print_each(row);
-      std::cout << std::endl;
+      std::cout << "\n";
     }
   }
 
@@ -78,7 +100,7 @@ protected:
   template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
   void print_each(TupleType&& t, std::integral_constant<size_t, I>)
   {
-    std::cout << std::get<I>(t) << "|";
+    std::cout << std::setw(_column_sizes[I]) << std::get<I>(t) << "|";
 
     // Recursive call to print the next item
     print_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
@@ -112,7 +134,6 @@ protected:
   template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
   void size_each(TupleType&& t, std::vector<unsigned int> & sizes, std::integral_constant<size_t, I>)
   {
-    std::cout << sizeOfData(std::get<I>(t)) << "|";
     sizes[I] = sizeOfData(std::get<I>(t));
 
     // Continue the recursion
@@ -136,6 +157,7 @@ protected:
     for (unsigned int i = 0; i < _num_columns; i++)
       _column_sizes[i] = _headers[i].size();
 
+    // Grab the size of each entry of each row and see if it's bigger
     for (auto & row : _data)
     {
       size_each(row, column_sizes);
