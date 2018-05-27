@@ -38,8 +38,14 @@ class PerfGraphTable
 public:
   typedef std::tuple<Ts...> DataTuple;
 
-  PerfGraphTable() : _num_columns(std::tuple_size<DataTuple>::value)
-  {}
+  PerfGraphTable(std::vector<std::string> headers, unsigned int static_column_size = 10) : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(10)
+  {
+    if (headers.size() != _num_columns)
+    {
+      std::cout << "Number of headers must match number of columns!" << std::endl;
+      std::abort();
+    }
+  }
 
   void addRow(std::tuple<Ts...> data)
   {
@@ -85,33 +91,38 @@ protected:
     print_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
   }
 
-
-  // Original idea from https://stackoverflow.com/a/31860104
+  // Try to find the size the column will take up
+  // If the datatype has a size() member... let's call it
   template<class T, class size_type = decltype(((T*)nullptr)->size())>
   size_t sizeOfData(const T & data)
   {
     return data.size();
   }
 
+  // If it doesn't... let's just use a statically set size
   size_t sizeOfData(...)
   {
     return _static_column_size;
   }
 
+  // These three functions iterate over the Tuple, find the printed size of each element and
   template<typename TupleType>
-  void size_each(TupleType&&, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
+  void size_each(TupleType&&, std::vector<unsigned int> & sizes, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
 
   template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
-  void size_each(TupleType&& t, std::integral_constant<size_t, I>)
+  void size_each(TupleType&& t, std::vector<unsigned int> & sizes, std::integral_constant<size_t, I>)
   {
     std::cout << sizeOfData(std::get<I>(t)) << "|";
-    size_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
+    sizes[I] = sizeOfData(std::get<I>(t));
+
+    // Continue the recursion
+    size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, I + 1>());
   }
 
   template<typename TupleType>
-  void size_each(TupleType&& t)
+  void size_each(TupleType&& t, std::vector<unsigned int> & sizes)
   {
-    size_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
+    size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, 0>());
   }
 
   void size_columns()
@@ -121,12 +132,22 @@ protected:
     // Temporary for querying each row
     std::vector<unsigned int> column_sizes(_num_columns);
 
+    // Start with the size of the headers
+    for (unsigned int i = 0; i < _num_columns; i++)
+      _column_sizes[i] = _headers[i].size();
+
     for (auto & row : _data)
     {
-      size_each(row);
+      size_each(row, column_sizes);
       std::cout << std::endl;
+
+      for (unsigned int i = 0; i < _num_columns; i++)
+        _column_sizes[i] = std::max(_column_sizes[i], column_sizes[i]);
     }
   }
+
+  /// The column headers
+  std::vector<std::string> _headers;
 
   /// Number of columns in the table
   unsigned int _num_columns;
@@ -199,7 +220,7 @@ int main()
 
 //  std::cout << "|" << std::setw(5) << std::left << "Dog" << "|" << std::endl;
 
-  PerfGraphTable<std::string, double, double> pgt;
+  PerfGraphTable<std::string, double, double> pgt({"junk", "otherstuff", "dumb"});
 
   pgt.addRow({"stuff", 1.2, 3.5});
 
