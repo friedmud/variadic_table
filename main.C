@@ -36,6 +36,11 @@ template<class... Ts>
 class PerfGraphTable
 {
 public:
+  typedef std::tuple<Ts...> DataTuple;
+
+  PerfGraphTable() : _num_columns(std::tuple_size<DataTuple>::value)
+  {}
+
   void addRow(std::tuple<Ts...> data)
   {
     _data.push_back(data);
@@ -43,6 +48,8 @@ public:
 
   void print()
   {
+    size_columns();
+
     for (auto & row : _data)
     {
       print_each(row);
@@ -51,30 +58,87 @@ public:
   }
 
 protected:
+  // From https://stackoverflow.com/a/26908596
+  //
+  // BTW: This would all be a lot easier with generic lambdas
+  // there would only need to be one of this sequence and then
+  // you could pass in a generic lambda.  Unfortunately, that's C++14
+  //
+  // This ends the recursion
+  template<typename TupleType>
+  void print_each(TupleType&&, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
 
-// From https://stackoverflow.com/a/26908596
-template<typename TupleType>
-void print_each(TupleType&&, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
+  // This gets called on each item
+  template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
+  void print_each(TupleType&& t, std::integral_constant<size_t, I>)
+  {
+    std::cout << std::get<I>(t) << "|";
 
-template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
-void print_each(TupleType&& t, std::integral_constant<size_t, I>)
-{
-  std::cout << std::get<I>(t) << "|";
-  print_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
-}
+    // Recursive call to print the next item
+    print_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
+  }
 
-template<typename TupleType>
-void print_each(TupleType&& t)
-{
-  print_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
-}
+  // This is what gets called first
+  template<typename TupleType>
+  void print_each(TupleType&& t)
+  {
+    print_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
+  }
 
 
+  // Original idea from https://stackoverflow.com/a/31860104
+  template<class T, class size_type = decltype(((T*)nullptr)->size())>
+  size_t sizeOfData(const T & data)
+  {
+    return data.size();
+  }
 
-  template<typename T>
-  void print_helper( unsigned int column, const T & x ) { std::cout << x << "|"; }
+  size_t sizeOfData(...)
+  {
+    return _static_column_size;
+  }
 
-  std::vector<std::tuple<Ts...>> _data;
+  template<typename TupleType>
+  void size_each(TupleType&&, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
+
+  template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
+  void size_each(TupleType&& t, std::integral_constant<size_t, I>)
+  {
+    std::cout << sizeOfData(std::get<I>(t)) << "|";
+    size_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
+  }
+
+  template<typename TupleType>
+  void size_each(TupleType&& t)
+  {
+    size_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
+  }
+
+  void size_columns()
+  {
+    _column_sizes.resize(_num_columns);
+
+    // Temporary for querying each row
+    std::vector<unsigned int> column_sizes(_num_columns);
+
+    for (auto & row : _data)
+    {
+      size_each(row);
+      std::cout << std::endl;
+    }
+  }
+
+  /// Number of columns in the table
+  unsigned int _num_columns;
+
+  /// Size of columns that we can't get the size of
+  unsigned int _static_column_size = 10;
+
+  /// The actual data
+  std::vector<DataTuple> _data;
+
+  /// Holds the printable width of each column
+  std::vector<unsigned int> _column_sizes;
 };
 
 
