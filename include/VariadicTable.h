@@ -10,8 +10,8 @@
  *
  * Requries C++11 (and nothing more)
  *
- * It's templated on the types that will be in each column (all values in a column must have the
- * same type)
+ * It's templated on the types that will be in each column
+ * (all values in a column must have the same type)
  *
  * For instance, to use it with data that looks like:  "Fred", 193.4, 35, "Sam"
  * with header names: "Name", "Weight", "Age", "Brother"
@@ -61,7 +61,8 @@ public:
   /**
    * Pretty print the table of data
    */
-  void print()
+  template <typename StreamType>
+  void print(StreamType & stream)
   {
     size_columns();
 
@@ -74,27 +75,27 @@ public:
       total_width += col_size;
 
     // Print out the top line
-    std::cout << std::string(total_width, '-') << "\n";
+    stream << std::string(total_width, '-') << "\n";
 
     // Print out the headers
-    std::cout << "|";
+    stream << "|";
     for (unsigned int i = 0; i < _num_columns; i++)
-      std::cout << std::setw(_column_sizes[i]) << std::left << _headers[i] << "|";
-    std::cout << "\n";
+      stream << std::setw(_column_sizes[i]) << std::left << _headers[i] << "|";
+    stream << "\n";
 
     // Print out the line below the header
-    std::cout << std::string(total_width, '-') << "\n";
+    stream << std::string(total_width, '-') << "\n";
 
     // Now print the rows of the table
     for (auto & row : _data)
     {
-      std::cout << "|";
-      print_each(row);
-      std::cout << "\n";
+      stream << "|";
+      print_each(row, stream);
+      stream << "\n";
     }
 
     // Print out the line below the header
-    std::cout << std::string(total_width, '-') << "\n";
+    stream << std::string(total_width, '-') << "\n";
   }
 
 protected:
@@ -132,8 +133,9 @@ protected:
   /**
    *  This ends the recursion
    */
-  template <typename TupleType>
+  template <typename TupleType, typename StreamType>
   void print_each(TupleType &&,
+                  StreamType & stream,
                   std::integral_constant<
                       size_t,
                       std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
@@ -145,25 +147,26 @@ protected:
    */
   template <std::size_t I,
             typename TupleType,
+            typename StreamType,
             typename = typename std::enable_if<
                 I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
-  void print_each(TupleType && t, std::integral_constant<size_t, I>)
+  void print_each(TupleType && t, StreamType & stream, std::integral_constant<size_t, I>)
   {
     auto & val = std::get<I>(t);
 
-    std::cout << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val << "|";
+    stream << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val << "|";
 
     // Recursive call to print the next item
-    print_each(std::forward<TupleType>(t), std::integral_constant<size_t, I + 1>());
+    print_each(std::forward<TupleType>(t), stream, std::integral_constant<size_t, I + 1>());
   }
 
   /**
    * his is what gets called first
    */
-  template <typename TupleType>
-  void print_each(TupleType && t)
+  template <typename TupleType, typename StreamType>
+  void print_each(TupleType && t, StreamType & stream)
   {
-    print_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
+    print_each(std::forward<TupleType>(t), stream, std::integral_constant<size_t, 0>());
   }
 
   /**

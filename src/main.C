@@ -11,7 +11,7 @@ main()
     vt.addRow({"David", 175.3, 38, "Andrew"});
     vt.addRow({"Robert", 140.3, 27, "Fande"});
 
-    vt.print();
+    vt.print(std::cout);
   }
 
   // More Data
@@ -41,6 +41,6 @@ main()
     vt.addRow({"      Exodus::outputStep", 0.005395, 0, 0.005395});
     vt.addRow({"      Console::outputStep", 5.8e-05, 0, 5.8e-05});
 
-    vt.print();
+    vt.print(std::cout);
   }
 }
