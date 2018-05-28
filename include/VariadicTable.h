@@ -80,7 +80,14 @@ public:
     // Print out the headers
     stream << "|";
     for (unsigned int i = 0; i < _num_columns; i++)
-      stream << std::setw(_column_sizes[i]) << std::left << _headers[i] << "|";
+    {
+      // Must find the center of the column
+      auto half = _column_sizes[i] / 2;
+      half -= _headers[i].size() / 2;
+
+      stream << std::setw(_column_sizes[i]) << std::left << std::string(half, ' ') + _headers[i] << "|";
+    }
+
     stream << "\n";
 
     // Print out the line below the header
