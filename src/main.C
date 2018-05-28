@@ -5,7 +5,7 @@ main()
 {
   // Tiny Table
   {
-    VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"});
+    VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"}, 10);
 
     vt.addRow({"Cody", 180.2, 40, "John"});
     vt.addRow({"David", 175.3, 38, "Andrew"});
@@ -16,7 +16,7 @@ main()
 
   // More Data
   {
-    VariadicTable<std::string, double, double, double> vt({"Section", "Self", "Children", "Total"});
+    VariadicTable<std::string, double, double, double> vt({"Section", "Self", "Children", "Total"}, 12);
 
     vt.addRow({"Root", 0.004525, 0.051815, 0.05634});
     vt.addRow({"  MooseApp::setup", 1e-05, 0.037072, 0.037082});

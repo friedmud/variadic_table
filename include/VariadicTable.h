@@ -39,7 +39,7 @@ public:
    * @param static_column_size The size of columns that can't be found automatically
    */
   VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0)
-    : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(10)
+    : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(static_column_size)
   {
     if (headers.size() != _num_columns)
     {
