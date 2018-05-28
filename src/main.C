@@ -1,6 +1,7 @@
 #include "VariadicTable.h"
 
-int main()
+int
+main()
 {
   // Tiny Table
   {
@@ -20,7 +21,7 @@ int main()
     vt.addRow({"Root", 0.004525, 0.051815, 0.05634});
     vt.addRow({"  MooseApp::setup", 1e-05, 0.037072, 0.037082});
     vt.addRow({"    FileMesh::init", 3e-06, 0.001548, 0.001551});
-    vt.addRow({"      FileMesh::readMesh", 0.001548, 0,0.001548});
+    vt.addRow({"      FileMesh::readMesh", 0.001548, 0, 0.001548});
     vt.addRow({"    FileMesh::prepare", 5.1e-05, 0.000192, 0.000243});
     vt.addRow({"    FEProblem::init", 6.7e-05, 0.002233, 0.0023});
     vt.addRow({"      FEProblem::EquationSystems::Init", 0.002051, 0, 0.002051});

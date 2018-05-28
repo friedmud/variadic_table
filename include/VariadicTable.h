@@ -10,7 +10,8 @@
  *
  * Requries C++11 (and nothing more)
  *
- * It's templated on the types that will be in each column (all values in a column must have the same type)
+ * It's templated on the types that will be in each column (all values in a column must have the
+ * same type)
  *
  * For instance, to use it with data that looks like:  "Fred", 193.4, 35, "Sam"
  * with header names: "Name", "Weight", "Age", "Brother"
@@ -24,7 +25,7 @@
  * And finally print it:
  * vt.print();
  */
-template<class... Ts>
+template <class... Ts>
 class VariadicTable
 {
 public:
@@ -37,7 +38,8 @@ public:
    * @param headers The names of the columns
    * @param static_column_size The size of columns that can't be found automatically
    */
-  VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0) : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(10)
+  VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0)
+    : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(10)
   {
     if (headers.size() != _num_columns)
     {
@@ -54,10 +56,7 @@ public:
    *
    * @param data A Tuple of data to add
    */
-  void addRow(std::tuple<Ts...> data)
-  {
-    _data.push_back(data);
-  }
+  void addRow(std::tuple<Ts...> data) { _data.push_back(data); }
 
   /**
    * Pretty print the table of data
@@ -105,14 +104,16 @@ protected:
 
   // Attempts to figure out the correct justification for the data
   // If it's a floating point value
-  template<typename T, typename = typename std::enable_if<std::is_arithmetic<typename std::remove_reference<T>::type>::value>::type>
+  template <typename T,
+            typename = typename std::enable_if<
+                std::is_arithmetic<typename std::remove_reference<T>::type>::value>::type>
   static right_type justify(int /*firstchoice*/)
   {
     return std::right;
   }
 
   // Otherwise
-  template<typename T>
+  template <typename T>
   static left_type justify(long /*secondchoice*/)
   {
     return std::left;
@@ -131,14 +132,22 @@ protected:
   /**
    *  This ends the recursion
    */
-  template<typename TupleType>
-  void print_each(TupleType&&, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
+  template <typename TupleType>
+  void print_each(TupleType &&,
+                  std::integral_constant<
+                      size_t,
+                      std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
+  {
+  }
 
   /**
    * This gets called on each item
    */
-  template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
-  void print_each(TupleType&& t, std::integral_constant<size_t, I>)
+  template <std::size_t I,
+            typename TupleType,
+            typename = typename std::enable_if<
+                I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
+  void print_each(TupleType && t, std::integral_constant<size_t, I>)
   {
     auto & val = std::get<I>(t);
 
@@ -151,8 +160,8 @@ protected:
   /**
    * his is what gets called first
    */
-  template<typename TupleType>
-  void print_each(TupleType&& t)
+  template <typename TupleType>
+  void print_each(TupleType && t)
   {
     print_each(std::forward<TupleType>(t), std::integral_constant<size_t, 0>());
   }
@@ -162,7 +171,7 @@ protected:
    *
    * If the datatype has a size() member... let's call it
    */
-  template<class T, class size_type = decltype(((T*)nullptr)->size())>
+  template <class T, class size_type = decltype(((T *)nullptr)->size())>
   size_t sizeOfData(const T & data)
   {
     return data.size();
@@ -171,26 +180,34 @@ protected:
   /**
    * If it doesn't... let's just use a statically set size
    */
-  size_t sizeOfData(...)
-  {
-    return _static_column_size;
-  }
+  size_t sizeOfData(...) { return _static_column_size; }
 
   /**
-   * These three functions iterate over the Tuple, find the printed size of each element and set it in a vector
+   * These three functions iterate over the Tuple, find the printed size of each element and set it
+   * in a vector
    */
 
   /**
    * End the recursion
    */
-  template<typename TupleType>
-  void size_each(TupleType&&, std::vector<unsigned int> & sizes, std::integral_constant<size_t, std::tuple_size<typename std::remove_reference<TupleType>::type >::value>) {}
+  template <typename TupleType>
+  void size_each(TupleType &&,
+                 std::vector<unsigned int> & sizes,
+                 std::integral_constant<
+                     size_t,
+                     std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
+  {
+  }
 
   /**
    * Recursively called for each element
    */
-  template<std::size_t I, typename TupleType, typename = typename std::enable_if<I!=std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type >
-  void size_each(TupleType&& t, std::vector<unsigned int> & sizes, std::integral_constant<size_t, I>)
+  template <std::size_t I,
+            typename TupleType,
+            typename = typename std::enable_if<
+                I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
+  void
+  size_each(TupleType && t, std::vector<unsigned int> & sizes, std::integral_constant<size_t, I>)
   {
     sizes[I] = sizeOfData(std::get<I>(t));
 
@@ -201,8 +218,8 @@ protected:
   /**
    * The function that is actually called that starts the recursion
    */
-  template<typename TupleType>
-  void size_each(TupleType&& t, std::vector<unsigned int> & sizes)
+  template <typename TupleType>
+  void size_each(TupleType && t, std::vector<unsigned int> & sizes)
   {
     size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, 0>());
   }
