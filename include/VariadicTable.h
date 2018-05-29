@@ -145,7 +145,7 @@ protected:
    */
   template <typename TupleType, typename StreamType>
   void print_each(TupleType &&,
-                  StreamType & stream,
+                  StreamType & /*stream*/,
                   std::integral_constant<
                       size_t,
                       std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
@@ -205,7 +205,7 @@ protected:
    */
   template <typename TupleType>
   void size_each(TupleType &&,
-                 std::vector<unsigned int> & sizes,
+                 std::vector<unsigned int> & /*sizes*/,
                  std::integral_constant<
                      size_t,
                      std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
