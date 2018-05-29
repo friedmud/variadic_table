@@ -20,7 +20,7 @@ Outputs:
 
 ```
 --------------------------------------
-|Name  |Weight    |Age       |Brother|
+| Name |  Weight  |    Age   |Brother|
 --------------------------------------
 |Cody  |     180.2|        40|John   |
 |David |     175.3|        38|Andrew |
