@@ -1,3 +1,6 @@
+#ifndef VARIADICTABLE_H
+#define VARIADICTABLE_H
+
 #include <iostream>
 #include <iomanip>
 #include <ios>
@@ -273,3 +276,5 @@ protected:
   /// Holds the printable width of each column
   std::vector<unsigned int> _column_sizes;
 };
+
+#endif
