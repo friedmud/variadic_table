@@ -9,6 +9,17 @@
 #include <type_traits>
 
 /**
+ * Used to specify the column format
+ */
+enum class VariadicTableColumnFormat
+{
+  AUTO,
+  SCIENTIFIC,
+  FIXED,
+  PERCENT
+};
+
+/**
  * A class for "pretty printing" a table of data.
  *
  * Requries C++11 (and nothing more)
@@ -45,10 +56,7 @@ public:
     : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(static_column_size)
   {
     if (headers.size() != _num_columns)
-    {
-      std::cout << "Number of headers must match number of columns!" << std::endl;
       std::abort();
-    }
   }
 
   /**
@@ -108,6 +116,8 @@ public:
     stream << std::string(total_width, '-') << "\n";
   }
 
+  void setColumnFormat(std::vector<VariadicTableColumnFormat> column_format) { _column_format = column_format; }
+
 protected:
   // Just some handy typedefs for the following two functions
   typedef decltype(&std::right) right_type;
@@ -164,7 +174,27 @@ protected:
   {
     auto & val = std::get<I>(t);
 
+    // Set the format
+    if (!_column_format.empty())
+    {
+      assert(_column_format.size() ==
+             std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
+
+      if (_column_format[I] == VariadicTableColumnFormat::SCIENTIFIC)
+        stream << std::scientific;
+
+      if (_column_format[I] == VariadicTableColumnFormat::FIXED)
+        stream << std::fixed;
+
+      if (_column_format[I] == VariadicTableColumnFormat::PERCENT)
+        stream << std::fixed << std::setprecision(2);
+    }
+
     stream << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val << "|";
+
+    // Unset the format
+    if (!_column_format.empty())
+      stream << std::defaultfloat;
 
     // Recursive call to print the next item
     print_each(std::forward<TupleType>(t), stream, std::integral_constant<size_t, I + 1>());
@@ -275,6 +305,9 @@ protected:
 
   /// Holds the printable width of each column
   std::vector<unsigned int> _column_sizes;
+
+  /// Column
+  std::vector<VariadicTableColumnFormat> _column_format;
 };
 
 #endif

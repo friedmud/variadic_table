@@ -18,6 +18,11 @@ main()
   {
     VariadicTable<std::string, double, double, double> vt({"Section", "Self", "Children", "Total"}, 12);
 
+    vt.setColumnFormat({VariadicTableColumnFormat::AUTO,
+                        VariadicTableColumnFormat::SCIENTIFIC,
+                        VariadicTableColumnFormat::FIXED,
+                        VariadicTableColumnFormat::PERCENT});
+
     vt.addRow({"Root", 0.004525, 0.051815, 0.05634});
     vt.addRow({"  MooseApp::setup", 1e-05, 0.037072, 0.037082});
     vt.addRow({"    FileMesh::init", 3e-06, 0.001548, 0.001551});
