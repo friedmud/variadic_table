@@ -295,6 +295,11 @@ protected:
   {
     sizes[I] = sizeOfData(std::get<I>(t));
 
+    // Override for Percent
+    if (!_column_format.empty())
+      if (_column_format[I] == VariadicTableColumnFormat::PERCENT)
+        sizes[I] = 6; // 100.00
+
     // Continue the recursion
     size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, I + 1>());
   }
