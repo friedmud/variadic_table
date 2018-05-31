@@ -19,15 +19,21 @@ vt.print();
 Outputs:
 
 ```
---------------------------------------
-| Name |  Weight  |    Age   |Brother|
---------------------------------------
-|Cody  |     180.2|        40|John   |
-|David |     175.3|        38|Andrew |
-|Robert|     140.3|        27|Fande  |
---------------------------------------
+------------------------------------------------
+|  Name  |   Weight   |     Age    |  Brother  |
+------------------------------------------------
+| Cody   |      180.2 |         40 | John      |
+| David  |      175.3 |         38 | Andrew    |
+| Robert |      140.3 |         27 | Fande     |
+------------------------------------------------
 ```
+
+For more usage examples see [main.C](https://github.com/friedmud/variadic_table/blob/master/src/main.C).
 
 ## Installation
 
-Just put `VariadicTable.h` somewhere and `#include "VariadicTable.h"`
+Just put `VariadicTable.h` somewhere and `#include "VariadicTable.h"
+
+## Compilation
+
+You don't _need_ to compile this - but a simple `make` should work to build the `main.C` provided here so you can see the example usage.
