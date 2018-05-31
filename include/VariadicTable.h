@@ -53,8 +53,8 @@ public:
    * @param headers The names of the columns
    * @param static_column_size The size of columns that can't be found automatically
    */
-  VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0)
-    : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(static_column_size)
+  VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0, unsigned int cell_padding = 1)
+      : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(static_column_size), _cell_padding(cell_padding)
   {
     assert(headers.size() == _num_columns);
   }
@@ -83,20 +83,20 @@ public:
 
     // Now add in the size of each colum
     for (auto & col_size : _column_sizes)
-      total_width += col_size;
+      total_width += col_size + (2 * _cell_padding);
 
     // Print out the top line
     stream << std::string(total_width, '-') << "\n";
 
     // Print out the headers
-    stream << "|";
+    stream << "|" ;
     for (unsigned int i = 0; i < _num_columns; i++)
     {
       // Must find the center of the column
       auto half = _column_sizes[i] / 2;
       half -= _headers[i].size() / 2;
 
-      stream << std::setw(_column_sizes[i]) << std::left << std::string(half, ' ') + _headers[i] << "|";
+      stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[i]) << std::left << std::string(half, ' ') + _headers[i] << std::string(_cell_padding, ' ') << "|";
     }
 
     stream << "\n";
@@ -226,7 +226,7 @@ protected:
         stream << std::fixed << std::setprecision(2);
     }
 
-    stream << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val << "|";
+    stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val <<  std::string(_cell_padding, ' ') << "|";
 
     // Unset the format
     if (!_column_format.empty())
@@ -315,7 +315,7 @@ protected:
 
     // Start with the size of the headers
     for (unsigned int i = 0; i < _num_columns; i++)
-      _column_sizes[i] = _headers[i].size();
+      _column_sizes[i] = _headers[i].size() + (2 * _cell_padding);
 
     // Grab the size of each entry of each row and see if it's bigger
     for (auto & row : _data)
@@ -335,6 +335,9 @@ protected:
 
   /// Size of columns that we can't get the size of
   unsigned int _static_column_size;
+
+  /// Size of the cell padding
+  unsigned int _cell_padding;
 
   /// The actual data
   std::vector<DataTuple> _data;
