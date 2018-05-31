@@ -53,8 +53,13 @@ public:
    * @param headers The names of the columns
    * @param static_column_size The size of columns that can't be found automatically
    */
-  VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0, unsigned int cell_padding = 1)
-      : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(static_column_size), _cell_padding(cell_padding)
+  VariadicTable(std::vector<std::string> headers,
+                unsigned int static_column_size = 0,
+                unsigned int cell_padding = 1)
+    : _headers(headers),
+      _num_columns(std::tuple_size<DataTuple>::value),
+      _static_column_size(static_column_size),
+      _cell_padding(cell_padding)
   {
     assert(headers.size() == _num_columns);
   }
@@ -89,14 +94,15 @@ public:
     stream << std::string(total_width, '-') << "\n";
 
     // Print out the headers
-    stream << "|" ;
+    stream << "|";
     for (unsigned int i = 0; i < _num_columns; i++)
     {
       // Must find the center of the column
       auto half = _column_sizes[i] / 2;
       half -= _headers[i].size() / 2;
 
-      stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[i]) << std::left << std::string(half, ' ') + _headers[i] << std::string(_cell_padding, ' ') << "|";
+      stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[i]) << std::left
+             << std::string(half, ' ') + _headers[i] << std::string(_cell_padding, ' ') << "|";
     }
 
     stream << "\n";
@@ -125,8 +131,7 @@ public:
    */
   void setColumnFormat(const std::vector<VariadicTableColumnFormat> & column_format)
   {
-    assert(column_format.size() ==
-           std::tuple_size<DataTuple>::value);
+    assert(column_format.size() == std::tuple_size<DataTuple>::value);
 
     _column_format = column_format;
   }
@@ -140,8 +145,7 @@ public:
    */
   void setColumnPrecision(const std::vector<int> & precision)
   {
-    assert(precision.size() ==
-           std::tuple_size<DataTuple>::value);
+    assert(precision.size() == std::tuple_size<DataTuple>::value);
     _precision = precision;
   }
 
@@ -226,7 +230,8 @@ protected:
         stream << std::fixed << std::setprecision(2);
     }
 
-    stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[I]) << justify<decltype(val)>(0) << val <<  std::string(_cell_padding, ' ') << "|";
+    stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[I])
+           << justify<decltype(val)>(0) << val << std::string(_cell_padding, ' ') << "|";
 
     // Unset the format
     if (!_column_format.empty())
