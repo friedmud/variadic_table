@@ -325,7 +325,7 @@ protected:
 
     // Start with the size of the headers
     for (unsigned int i = 0; i < _num_columns; i++)
-      _column_sizes[i] = _headers[i].size() + (2 * _cell_padding);
+      _column_sizes[i] = _headers[i].size();
 
     // Grab the size of each entry of each row and see if it's bigger
     for (auto & row : _data)
