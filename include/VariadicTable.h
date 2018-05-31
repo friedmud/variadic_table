@@ -7,6 +7,7 @@
 #include <vector>
 #include <tuple>
 #include <type_traits>
+#include <cassert>
 
 /**
  * Used to specify the column format
@@ -55,8 +56,7 @@ public:
   VariadicTable(std::vector<std::string> headers, unsigned int static_column_size = 0)
     : _headers(headers), _num_columns(std::tuple_size<DataTuple>::value), _static_column_size(static_column_size)
   {
-    if (headers.size() != _num_columns)
-      std::abort();
+    assert(headers.size() == _num_columns);
   }
 
   /**
@@ -116,7 +116,34 @@ public:
     stream << std::string(total_width, '-') << "\n";
   }
 
-  void setColumnFormat(std::vector<VariadicTableColumnFormat> column_format) { _column_format = column_format; }
+  /**
+   * Set how to format numbers for each column
+   *
+   * Note: this is ignored for std::string columns
+   *
+   * @column_format The format for each column: MUST be the same length as the number of columns.
+   */
+  void setColumnFormat(const std::vector<VariadicTableColumnFormat> & column_format)
+  {
+    assert(column_format.size() ==
+           std::tuple_size<DataTuple>::value);
+
+    _column_format = column_format;
+  }
+
+  /**
+   * Set how many digits of precision to show for floating point numbers
+   *
+   * Note: this is ignored for std::string columns
+   *
+   * @column_format The precision for each column: MUST be the same length as the number of columns.
+   */
+  void setColumnPrecision(const std::vector<int> & precision)
+  {
+    assert(precision.size() ==
+           std::tuple_size<DataTuple>::value);
+    _precision = precision;
+  }
 
 protected:
   // Just some handy typedefs for the following two functions
@@ -173,6 +200,15 @@ protected:
   void print_each(TupleType && t, StreamType & stream, std::integral_constant<size_t, I>)
   {
     auto & val = std::get<I>(t);
+
+    // Set the precision
+    if (!_precision.empty())
+    {
+      assert(_precision.size() ==
+             std::tuple_size<typename std::remove_reference<TupleType>::type>::value);
+
+      stream << std::setprecision(_precision[I]);
+    }
 
     // Set the format
     if (!_column_format.empty())
@@ -306,8 +342,11 @@ protected:
   /// Holds the printable width of each column
   std::vector<unsigned int> _column_sizes;
 
-  /// Column
+  /// Column Format
   std::vector<VariadicTableColumnFormat> _column_format;
+
+  /// Precision For each column
+  std::vector<int> _precision;
 };
 
 #endif

@@ -23,6 +23,11 @@ main()
                         VariadicTableColumnFormat::FIXED,
                         VariadicTableColumnFormat::PERCENT});
 
+    vt.setColumnPrecision(
+      {
+        1, 3, 3, 2
+          });
+
     vt.addRow({"Root", 0.004525, 0.051815, 0.05634});
     vt.addRow({"  MooseApp::setup", 1e-05, 0.037072, 0.037082});
     vt.addRow({"    FileMesh::init", 3e-06, 0.001548, 0.001551});
