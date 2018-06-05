@@ -257,7 +257,7 @@ protected:
    * If the datatype has a size() member... let's call it
    */
   template <class T>
-  size_t sizeOfData(const T & data, decltype(((T *)nullptr)->size()) * dummy = nullptr)
+  size_t sizeOfData(const T & data, decltype(((T *)nullptr)->size()) * /*dummy*/ = nullptr)
   {
     return data.size();
   }
@@ -269,7 +269,7 @@ protected:
    */
   template <class T>
   size_t sizeOfData(const T & data,
-                    typename std::enable_if<std::is_integral<T>::value>::type * dummy = nullptr)
+                    typename std::enable_if<std::is_integral<T>::value>::type * /*dummy*/ = nullptr)
   {
     if (data == 0)
       return 1;
