@@ -1,5 +1,4 @@
-#ifndef VARIADICTABLE_H
-#define VARIADICTABLE_H
+#pragma once
 
 #include <iostream>
 #include <iomanip>
@@ -33,10 +32,10 @@ enum class VariadicTableColumnFormat
  * with header names: "Name", "Weight", "Age", "Brother"
  *
  * You would invoke the table like so:
- * VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"});
+ * VariadicTable<std::string, double, int, std::string> vt("Name", "Weight", "Age", "Brother");
  *
  * Then add the data to the table:
- * vt.addRow({"Fred", 193.4, 35, "Sam"});
+ * vt.addRow("Fred", 193.4, 35, "Sam");
  *
  * And finally print it:
  * vt.print();
@@ -73,7 +72,7 @@ public:
    *
    * @param data A Tuple of data to add
    */
-  void addRow(std::tuple<Ts...> data) { _data.push_back(data); }
+  void addRow(Ts... entries) { _data.emplace_back(std::make_tuple(entries...)); }
 
   /**
    * Pretty print the table of data
@@ -380,5 +379,3 @@ protected:
   /// Precision For each column
   std::vector<int> _precision;
 };
-
-#endif
