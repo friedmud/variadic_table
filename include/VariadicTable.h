@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <cassert>
 #include <cmath>
+#include<algorithm>
 
 /**
  * Used to specify the column format
