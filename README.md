@@ -32,7 +32,7 @@ For more usage examples see [main.C](https://github.com/friedmud/variadic_table/
 
 ## Installation
 
-Just put `VariadicTable.h` somewhere and `#include "VariadicTable.h"
+Just put `VariadicTable.h` somewhere and `#include "VariadicTable.h"`
 
 ## Compilation
 
