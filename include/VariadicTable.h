@@ -8,6 +8,8 @@
 #include <type_traits>
 #include <cassert>
 #include <cmath>
+#include<limits>
+#include<algorithm>
 
 /**
  * Used to specify the column format
@@ -279,6 +281,27 @@ protected:
     return std::log10(data) + 1;
   }
 
+/**
+   * Try to find the size the column will take up
+   *
+   * If the datatype is a float - let's get it's length ( before the decimal point)
+   */
+  template <class T>
+  size_t sizeOfData(const T & data,
+                    typename std::enable_if<std::is_floating_point<T>::value>::type * /*dummy*/ = nullptr)
+  {
+    if (data == 0)
+      return 1;
+
+    auto p = size_t(std::log10(std::abs(data)));
+    if (p > 0 ) {
+      p++;
+    } else {
+      p=1;
+    }
+    return p;
+  }
+
   /**
    * If it doesn't... let's just use a statically set size
    */
@@ -314,10 +337,17 @@ protected:
     sizes[I] = sizeOfData(std::get<I>(t));
 
     // Override for Percent
-    if (!_column_format.empty())
-      if (_column_format[I] == VariadicTableColumnFormat::PERCENT)
-        sizes[I] = 6; // 100.00
-
+    if (!_column_format.empty()) {
+      if (_column_format[I] == VariadicTableColumnFormat::PERCENT){
+        sizes[I] = 1 + sizes[I]+ 1 + 2; // // +1 (sign) +x (numbers before decimal point) +1 (decimal point) +2 (numbers after decimal point)
+      }
+      else if (_column_format[I] == VariadicTableColumnFormat::SCIENTIFIC){
+        sizes[I] = 1 + 1 + 1 _precision[I] + 1 + 1 + 3; // +1 (sign) +1 (number before decimal point) +1 (decimal point) +X (numbers after decimal point) +5 (e-123)
+      }
+      else if (_column_format[I] == VariadicTableColumnFormat::FIXED){
+        sizes[I] = 1 + sizes[I]+ 1 + _precision[I]; // +1 (sign) +x (numbers before decimal point) +1 (decimal point) +X (numbers after decimal point)
+      }
+    }
     // Continue the recursion
     size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, I + 1>());
   }
