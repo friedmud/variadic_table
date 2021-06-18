@@ -5,12 +5,11 @@ main()
 {
   // Tiny Table
   {
-    VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"},
-                                                            10);
+    VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"},12);
 
-    vt.addRow({"Cody", 180.2, 40, "John"});
-    vt.addRow({"David", 175.3, 38, "Andrew"});
-    vt.addRow({"Robert", 140.3, 27, "Fande"});
+    vt.addRow("Cody", 180.2, 40, "John");
+    vt.addRow("David", 175.3, 38, "Andrew");
+    vt.addRow("Robert", 140.3, 27, "Fande");
 
     vt.print(std::cout);
   }
