@@ -342,7 +342,7 @@ protected:
         sizes[I] = 1 + sizes[I]+ 1 + 2; // // +1 (sign) +x (numbers before decimal point) +1 (decimal point) +2 (numbers after decimal point)
       }
       else if (_column_format[I] == VariadicTableColumnFormat::SCIENTIFIC){
-        sizes[I] = 1 + 1 + 1 _precision[I] + 1 + 1 + 3; // +1 (sign) +1 (number before decimal point) +1 (decimal point) +X (numbers after decimal point) +5 (e-123)
+        sizes[I] = 1 + 1 + 1 + _precision[I] + 1 + 1 + 3; // +1 (sign) +1 (number before decimal point) +1 (decimal point) +X (numbers after decimal point) +5 (e-123)
       }
       else if (_column_format[I] == VariadicTableColumnFormat::FIXED){
         sizes[I] = 1 + sizes[I]+ 1 + _precision[I]; // +1 (sign) +x (numbers before decimal point) +1 (decimal point) +X (numbers after decimal point)
