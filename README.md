@@ -9,8 +9,7 @@ It uses "variadic templates" to allow you to specify the types of data in each c
 ```C++
 #include "VariadicTable.h"
 
-VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"},
-                                                            10);
+VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"}, 10);
 
 vt.addRow("Cody", 180.2, 40, "John");
 vt.addRow("David", 175.3, 38, "Andrew");
