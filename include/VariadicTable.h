@@ -8,7 +8,8 @@
 #include <type_traits>
 #include <cassert>
 #include <cmath>
-#include<algorithm>
+#include <algorithm>
+#include <limits>
 
 /**
  * Used to specify the column format
