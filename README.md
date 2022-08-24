@@ -7,14 +7,16 @@ It uses "variadic templates" to allow you to specify the types of data in each c
 ## Example Usage
 
 ```C++
-    VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"},
+#include "VariadicTable.h"
+
+VariadicTable<std::string, double, int, std::string> vt({"Name", "Weight", "Age", "Brother"},
                                                             10);
 
-    vt.addRow("Cody", 180.2, 40, "John");
-    vt.addRow("David", 175.3, 38, "Andrew");
-    vt.addRow("Robert", 140.3, 27, "Fande");
+vt.addRow("Cody", 180.2, 40, "John");
+vt.addRow("David", 175.3, 38, "Andrew");
+vt.addRow("Robert", 140.3, 27, "Fande");
 
-    vt.print(std::cout);
+vt.print(std::cout);
 ```
 
 Outputs:
