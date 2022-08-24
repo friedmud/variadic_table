@@ -8,6 +8,8 @@
 #include <type_traits>
 #include <cassert>
 #include <cmath>
+#include<limits>
+#include<algorithm>
 
 /**
  * Used to specify the column format
@@ -56,12 +58,28 @@ public:
   VariadicTable(std::vector<std::string> headers,
                 unsigned int static_column_size = 0,
                 unsigned int cell_padding = 1)
-    : _headers(headers),
+    : //_headers(headers),
       _num_columns(std::tuple_size<DataTuple>::value),
       _static_column_size(static_column_size),
       _cell_padding(cell_padding)
   {
     assert(headers.size() == _num_columns);
+    _headers.emplace_back(headers); 
+    _precision.resize(_num_columns,2);
+    _column_format.resize(_num_columns,VariadicTableColumnFormat::AUTO);
+  }
+
+  /**
+   * Add a row of sub-headers
+   *
+   * Easiest to use like:
+   * table.addHeader({h1, h2, h3});
+   *
+   * @param data A vector of header strings to add
+   */
+  void addHeader(std::vector<std::string> subheaders) { 
+    assert(subheaders.size() == _num_columns);
+    _headers.emplace_back(subheaders); 
   }
 
   /**
@@ -94,18 +112,21 @@ public:
     stream << std::string(total_width, '-') << "\n";
 
     // Print out the headers
-    stream << "|";
-    for (unsigned int i = 0; i < _num_columns; i++)
-    {
-      // Must find the center of the column
-      auto half = _column_sizes[i] / 2;
-      half -= _headers[i].size() / 2;
+    for (unsigned int j = 0; j < (unsigned int) _headers.size(); j++)
+    {   
+      stream << "|";
+      for (unsigned int i = 0; i < _num_columns; i++)
+      {
+        // Must find the center of the column
+        auto half = _column_sizes[i] / 2;
+        half -= _headers[j][i].size() / 2;
 
-      stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[i]) << std::left
-             << std::string(half, ' ') + _headers[i] << std::string(_cell_padding, ' ') << "|";
+        stream << std::string(_cell_padding, ' ') << std::setw(_column_sizes[i]) << std::left
+              << std::string(half, ' ') + _headers[j][i] << std::string(_cell_padding, ' ') << "|";
+      }
+
+      stream << "\n";
     }
-
-    stream << "\n";
 
     // Print out the line below the header
     stream << std::string(total_width, '-') << "\n";
@@ -276,7 +297,28 @@ protected:
     if (data == 0)
       return 1;
 
-    return std::log10(data) + 1;
+    return std::log10(data) + 2; //+ 1 minus sign
+  }
+
+/**
+   * Try to find the size the column will take up
+   *
+   * If the datatype is a float - let's get it's length ( before the decimal point)
+   */
+  template <class T>
+  size_t sizeOfData(const T & data,
+                    typename std::enable_if<std::is_floating_point<T>::value>::type * /*dummy*/ = nullptr)
+  {
+    if (data == 0)
+      return 1;
+
+    auto p = size_t(std::log10(std::abs(data)));
+    if (p > 0 ) {
+      p++;
+    } else {
+      p=1;
+    }
+    return p + 3; // 1 minus sign, 1 for decimal point and 2 standard precision
   }
 
   /**
@@ -314,10 +356,17 @@ protected:
     sizes[I] = sizeOfData(std::get<I>(t));
 
     // Override for Percent
-    if (!_column_format.empty())
-      if (_column_format[I] == VariadicTableColumnFormat::PERCENT)
-        sizes[I] = 6; // 100.00
-
+    if (!_column_format.empty()) {
+      if (_column_format[I] == VariadicTableColumnFormat::PERCENT){
+        sizes[I] = -3 + 1 + sizes[I] + 1 + 2; // // +1 (sign) +x (numbers before decimal point) +1 (decimal point) +2 (numbers after decimal point)
+      }
+      else if (_column_format[I] == VariadicTableColumnFormat::SCIENTIFIC){
+        sizes[I] = 1 + 1 + 1 + _precision[I] + 1 + 1 + 3; // +1 (sign) +1 (number before decimal point) +1 (decimal point) +X (numbers after decimal point) +5 (e-123)
+      }
+      else if (_column_format[I] == VariadicTableColumnFormat::FIXED){
+        sizes[I] = -3 + 1 + sizes[I] + 1 + _precision[I]; // +1 (sign) +x (numbers before decimal point) +1 (decimal point) +X (numbers after decimal point)
+      }
+    }
     // Continue the recursion
     size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, I + 1>());
   }
@@ -342,8 +391,12 @@ protected:
     std::vector<unsigned int> column_sizes(_num_columns);
 
     // Start with the size of the headers
-    for (unsigned int i = 0; i < _num_columns; i++)
-      _column_sizes[i] = _headers[i].size();
+    for (unsigned int j = 0; j < (unsigned int) _headers.size(); j++)
+    {
+      for (unsigned int i = 0; i < _num_columns; i++) {
+        _column_sizes[i] = std::max(_column_sizes[i], (unsigned int) _headers[j][i].size());
+      }
+    }
 
     // Grab the size of each entry of each row and see if it's bigger
     for (auto & row : _data)
@@ -356,7 +409,7 @@ protected:
   }
 
   /// The column headers
-  std::vector<std::string> _headers;
+  std::vector<std::vector<std::string> > _headers;
 
   /// Number of columns in the table
   unsigned int _num_columns;
