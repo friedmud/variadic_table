@@ -295,7 +295,7 @@ protected:
    */
   template <typename TupleType>
   void size_each(TupleType &&,
-                 std::vector<unsigned int> & /*sizes*/,
+                 std::vector<size_t> & /*sizes*/,
                  std::integral_constant<
                      size_t,
                      std::tuple_size<typename std::remove_reference<TupleType>::type>::value>)
@@ -309,8 +309,7 @@ protected:
             typename TupleType,
             typename = typename std::enable_if<
                 I != std::tuple_size<typename std::remove_reference<TupleType>::type>::value>::type>
-  void
-  size_each(TupleType && t, std::vector<unsigned int> & sizes, std::integral_constant<size_t, I>)
+  void size_each(TupleType && t, std::vector<size_t> & sizes, std::integral_constant<size_t, I>)
   {
     sizes[I] = sizeOfData(std::get<I>(t));
 
@@ -327,7 +326,7 @@ protected:
    * The function that is actually called that starts the recursion
    */
   template <typename TupleType>
-  void size_each(TupleType && t, std::vector<unsigned int> & sizes)
+  void size_each(TupleType && t, std::vector<size_t> & sizes)
   {
     size_each(std::forward<TupleType>(t), sizes, std::integral_constant<size_t, 0>());
   }
@@ -340,7 +339,7 @@ protected:
     _column_sizes.resize(_num_columns);
 
     // Temporary for querying each row
-    std::vector<unsigned int> column_sizes(_num_columns);
+    std::vector<size_t> column_sizes(_num_columns);
 
     // Start with the size of the headers
     for (unsigned int i = 0; i < _num_columns; i++)
@@ -372,7 +371,7 @@ protected:
   std::vector<DataTuple> _data;
 
   /// Holds the printable width of each column
-  std::vector<unsigned int> _column_sizes;
+  std::vector<size_t> _column_sizes;
 
   /// Column Format
   std::vector<VariadicTableColumnFormat> _column_format;
